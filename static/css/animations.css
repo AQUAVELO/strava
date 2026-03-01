@@ -1,0 +1,485 @@
+/**
+ * ScoringFit Animations
+ * GPU-optimized animations for performance
+ * Only uses transform and opacity for 60fps animations
+ */
+
+/* ============================================
+   FADE ANIMATIONS (GPU Optimized)
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) translateZ(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) translateZ(0);
+    }
+}
+
+/* ============================================
+   SCALE ANIMATIONS
+   ============================================ */
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateZ(0);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateZ(0);
+    }
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(1) translateZ(0);
+    }
+    to {
+        transform: scale(1.05) translateZ(0);
+    }
+}
+
+/* ============================================
+   FLOATING/PARTICLE ANIMATIONS
+   ============================================ */
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) translateX(0) translateZ(0);
+    }
+    25% {
+        transform: translateY(-100px) translateX(50px) translateZ(0);
+    }
+    50% {
+        transform: translateY(-200px) translateX(0) translateZ(0);
+    }
+    75% {
+        transform: translateY(-100px) translateX(-50px) translateZ(0);
+    }
+}
+
+@keyframes floatGentle {
+    0%, 100% {
+        transform: translateY(0) translateZ(0);
+    }
+    50% {
+        transform: translateY(-10px) translateZ(0);
+    }
+}
+
+/* ============================================
+   ROTATE ANIMATIONS
+   ============================================ */
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg) translateZ(0);
+    }
+    to {
+        transform: rotate(360deg) translateZ(0);
+    }
+}
+
+@keyframes spinSlow {
+    from {
+        transform: rotate(0deg) translateZ(0);
+    }
+    to {
+        transform: rotate(360deg) translateZ(0);
+    }
+}
+
+/* ============================================
+   PULSE ANIMATIONS
+   ============================================ */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1) translateZ(0);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(0.95) translateZ(0);
+    }
+}
+
+@keyframes pulseSoft {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ============================================
+   SLIDE ANIMATIONS
+   ============================================ */
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%) translateZ(0);
+    }
+    to {
+        transform: translateX(0) translateZ(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%) translateZ(0);
+    }
+    to {
+        transform: translateX(0) translateZ(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%) translateZ(0);
+    }
+    to {
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100%) translateZ(0);
+    }
+    to {
+        transform: translateY(0) translateZ(0);
+    }
+}
+
+/* ============================================
+   BOUNCE ANIMATIONS
+   ============================================ */
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0) translateZ(0);
+    }
+    50% {
+        transform: translateY(-10px) translateZ(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) translateZ(0);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05) translateZ(0);
+    }
+    70% {
+        transform: scale(0.9) translateZ(0);
+    }
+    100% {
+        transform: scale(1) translateZ(0);
+    }
+}
+
+/* ============================================
+   SHAKE ANIMATIONS
+   ============================================ */
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0) translateZ(0);
+    }
+    25% {
+        transform: translateX(-5px) translateZ(0);
+    }
+    75% {
+        transform: translateX(5px) translateZ(0);
+    }
+}
+
+/* ============================================
+   GRADIENT ANIMATIONS
+   ============================================ */
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES FOR ANIMATIONS
+   ============================================ */
+
+/* Fade animations */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out both;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown 0.8s ease-out both;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out both;
+}
+
+.animate-fade-in-left {
+    animation: fadeInLeft 0.8s ease-out both;
+}
+
+.animate-fade-in-right {
+    animation: fadeInRight 0.8s ease-out both;
+}
+
+/* Scale animations */
+.animate-scale-in {
+    animation: scaleIn 0.6s ease-out both;
+}
+
+/* Float animations */
+.animate-float {
+    animation: floatGentle 3s ease-in-out infinite;
+}
+
+/* Pulse animations */
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Spin animations */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-spin-slow {
+    animation: spinSlow 3s linear infinite;
+}
+
+/* Bounce animations */
+.animate-bounce {
+    animation: bounce 1s ease-in-out infinite;
+}
+
+/* ============================================
+   ANIMATION DELAYS
+   ============================================ */
+
+.delay-100 {
+    animation-delay: 100ms;
+}
+
+.delay-200 {
+    animation-delay: 200ms;
+}
+
+.delay-300 {
+    animation-delay: 300ms;
+}
+
+.delay-400 {
+    animation-delay: 400ms;
+}
+
+.delay-500 {
+    animation-delay: 500ms;
+}
+
+.delay-600 {
+    animation-delay: 600ms;
+}
+
+.delay-800 {
+    animation-delay: 800ms;
+}
+
+.delay-1000 {
+    animation-delay: 1000ms;
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Particle optimization */
+.particle {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    animation: float 20s ease-in-out infinite;
+}
+
+/* Remove will-change after animation */
+.particle.loaded {
+    will-change: auto;
+}
+
+/* GPU acceleration for animated elements */
+.gpu-accelerated {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* ============================================
+   HOVER & INTERACTION ANIMATIONS
+   ============================================ */
+
+.hover-lift {
+    transition: transform var(--transition-base);
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px) translateZ(0);
+}
+
+.hover-scale {
+    transition: transform var(--transition-base);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05) translateZ(0);
+}
+
+.hover-lift-scale {
+    transition: transform var(--transition-base);
+}
+
+.hover-lift-scale:hover {
+    transform: translateY(-4px) scale(1.02) translateZ(0);
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .particle {
+        animation: none !important;
+    }
+}
+
+/* ============================================
+   PAGE TRANSITIONS
+   ============================================ */
+
+.page-enter {
+    animation: fadeInUp 0.6s ease-out both;
+}
+
+.page-exit {
+    animation: fadeInDown 0.4s ease-in both reverse;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.loading-dots {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulseSoft 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-light);
+    border-top-color: var(--color-primary-start);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.spinner-sm {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+}
+
+.spinner-lg {
+    width: 60px;
+    height: 60px;
+    border-width: 4px;
+}

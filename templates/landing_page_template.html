@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ description }}">
+    <title>{{ page_title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, {{ gradient_start }} 0%, {{ gradient_mid }} 50%, {{ gradient_end }} 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .background-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-100px) translateX(50px); }
+            50% { transform: translateY(-200px) translateX(0); }
+            75% { transform: translateY(-100px) translateX(-50px); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Header/Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        {% if logo_base64 %}
+        .logo-wrapper {
+            margin-bottom: 30px;
+            animation: scaleIn 0.6s ease-out 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .logo {
+            max-width: 180px;
+            height: auto;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        {% endif %}
+
+        h1 {
+            color: #ffffff;
+            font-size: 4em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+            text-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.5em;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* CTA Button */
+        .cta-wrapper {
+            margin-top: 20px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-cta {
+            display: inline-block;
+            padding: 20px 50px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 600;
+            background: linear-gradient(135deg, {{ accent_color }} 0%, {{ accent_color_dark }} 100%);
+            color: white;
+            box-shadow: 0 10px 30px {{ accent_color }}50;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-cta:hover::before {
+            left: 100%;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px {{ accent_color }}70;
+        }
+
+        {% if features %}
+        /* Features Section */
+        .features-section {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 80px;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .features-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .features-card h2 {
+            color: #ffffff;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .features-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .features-list li {
+            color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.3s ease, color 0.3s ease;
+            cursor: default;
+        }
+
+        .features-list li:hover {
+            transform: translateX(5px);
+            color: #fff;
+        }
+
+        .feature-check {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, {{ accent_color }} 0%, {{ accent_color_dark }} 100%);
+            border-radius: 50%;
+            flex-shrink: 0;
+            font-size: 0.85em;
+        }
+        {% endif %}
+
+        /* Footer */
+        .footer {
+            margin-top: 80px;
+            padding: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .subtitle {
+                font-size: 1.2em;
+            }
+
+            .btn-cta {
+                padding: 18px 40px;
+                font-size: 1.1em;
+            }
+
+            {% if features %}
+            .features-card {
+                padding: 30px 25px;
+            }
+
+            .features-list {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            {% endif %}
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2em;
+                letter-spacing: -1px;
+            }
+
+            .subtitle {
+                font-size: 1.1em;
+            }
+
+            .container {
+                padding: 40px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="background-animation">
+        <div class="particle" style="width: 60px; height: 60px; background: {{ accent_color }}50; top: 10%; left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="width: 40px; height: 40px; background: {{ accent_color_dark }}50; top: 70%; left: 80%; animation-delay: 5s;"></div>
+        <div class="particle" style="width: 80px; height: 80px; background: {{ accent_color }}30; top: 40%; left: 85%; animation-delay: 10s;"></div>
+        <div class="particle" style="width: 50px; height: 50px; background: {{ accent_color }}40; top: 60%; left: 15%; animation-delay: 7s;"></div>
+    </div>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            {% if logo_base64 %}
+            <div class="logo-wrapper">
+                <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo" class="logo">
+            </div>
+            {% endif %}
+
+            <h1>{{ headline }}</h1>
+            <p class="subtitle">{{ description }}</p>
+
+            <div class="cta-wrapper">
+                <a href="{{ target_url }}" class="btn-cta">{{ cta_text }}</a>
+            </div>
+        </div>
+
+        {% if features %}
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="features-card">
+                <h2>
+                    <span>✨</span>
+                    <span>Fonctionnalités</span>
+                </h2>
+                <ul class="features-list">
+                    {% for feature in features %}
+                    <li>
+                        <span class="feature-check">✓</span>
+                        <span>{{ feature }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2026 - {{ page_title }}</p>
+        </footer>
+    </div>
+
+    <script>
+        // Add parallax effect to particles on mouse move
+        document.addEventListener('mousemove', (e) => {
+            const particles = document.querySelectorAll('.particle');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+
+            particles.forEach((particle, index) => {
+                const speed = (index + 1) * 20;
+                const x = (mouseX - 0.5) * speed;
+                const y = (mouseY - 0.5) * speed;
+                particle.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>

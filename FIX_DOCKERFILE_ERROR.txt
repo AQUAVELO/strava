@@ -1,0 +1,183 @@
+================================================================================
+   ❌ RÉSOLUTION : "Could not find a Dockerfile"
+================================================================================
+
+ERREUR RENCONTRÉE :
+   Could not find a Dockerfile, nor detect a runtime or framework from source code.
+   Error: Could not detect runtime or Dockerfile
+   unsuccessful command 'flyctl launch plan propose --manifest-path /tmp/manifest.json --copy-config'
+
+================================================================================
+✅ SOLUTION EN 3 ÉTAPES
+================================================================================
+
+ÉTAPE 1 : VÉRIFIER QUE VOUS ÊTES DANS LE BON RÉPERTOIRE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   cd /Applications/MAMP/htdocs/strava
+   pwd
+
+   ✅ Doit afficher : /Applications/MAMP/htdocs/strava
+
+
+ÉTAPE 2 : VÉRIFIER QUE LE DOCKERFILE EXISTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   ls -la Dockerfile
+
+   ✅ Le fichier doit exister (614 octets)
+   
+   Si le fichier n'existe pas, il a été créé dans ce répertoire.
+
+
+ÉTAPE 3 : UTILISER LA BONNE COMMANDE DE DÉPLOIEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   ❌ NE PAS UTILISER : flyctl launch
+   
+   ✅ UTILISER À LA PLACE :
+   
+   # Option 1 : Script automatique (recommandé)
+   ./diagnostic_flyio.sh
+   
+   # Option 2 : Commande directe
+   flyctl deploy
+   
+   # Option 3 : Si c'est vraiment la première fois
+   flyctl launch --dockerfile Dockerfile --now
+
+================================================================================
+🔍 POURQUOI CETTE ERREUR ?
+================================================================================
+
+La commande `flyctl launch` essaie de DÉTECTER automatiquement le type d'app.
+Elle cherche :
+   • Un Dockerfile
+   • Un fichier de configuration (package.json, requirements.txt, etc.)
+   • Un framework connu
+
+PROBLÈME : Parfois, même si le Dockerfile existe, `flyctl launch` ne le voit pas
+          ou essaie de le générer automatiquement (et échoue).
+
+SOLUTION : Utiliser `flyctl deploy` qui utilise directement le Dockerfile existant.
+
+================================================================================
+📋 COMMANDES COMPLÈTES POUR DÉPLOYER
+================================================================================
+
+1️⃣  Aller dans le bon répertoire
+   cd /Applications/MAMP/htdocs/strava
+
+2️⃣  Vérifier les fichiers
+   ls -la Dockerfile fly.toml app.py
+
+3️⃣  Se connecter à Fly.io (si pas déjà fait)
+   flyctl auth login
+
+4️⃣  Configurer les secrets (IMPORTANT - une seule fois)
+   flyctl secrets set CLIENT_ID=149497
+   flyctl secrets set CLIENT_SECRET=ce7f00ae80b9cfa3ca9cd503b15c73c368a3c97d
+   flyctl secrets set REFRESH_TOKEN=1fc5f46d8e959312e0b994af8d2e1f57ac419cf7
+   flyctl secrets set INDEX_URL=https://votre-domaine.com/index
+
+5️⃣  Déployer l'application
+   
+   MÉTHODE A - Avec le script de diagnostic (recommandé) :
+   ./diagnostic_flyio.sh
+   
+   MÉTHODE B - Directement :
+   flyctl deploy
+   
+   MÉTHODE C - Si première fois et que deploy ne marche pas :
+   flyctl launch --dockerfile Dockerfile --now
+
+================================================================================
+🐛 SI L'ERREUR PERSISTE
+================================================================================
+
+1. VÉRIFIER QUE LE DOCKERFILE EST BIEN LÀ
+   
+   cat Dockerfile
+   
+   ✅ Doit afficher le contenu du Dockerfile (FROM python:3.11-slim, etc.)
+
+
+2. VÉRIFIER LES PERMISSIONS
+   
+   chmod 644 Dockerfile
+   ls -la Dockerfile
+
+
+3. ESSAYER AVEC LE CHEMIN ABSOLU
+   
+   flyctl deploy --dockerfile /Applications/MAMP/htdocs/strava/Dockerfile
+
+
+4. SUPPRIMER LE FICHIER fly.toml ET RECOMMENCER
+   
+   # ATTENTION : Seulement si rien ne marche
+   mv fly.toml fly.toml.bak
+   flyctl launch --dockerfile Dockerfile --now
+   
+   # Fly.io va créer un nouveau fly.toml
+
+
+5. VÉRIFIER LA VERSION DE FLYCTL
+   
+   flyctl version
+   
+   # Mettre à jour si nécessaire
+   brew upgrade flyctl
+
+================================================================================
+🎯 SOLUTION RAPIDE (COPIER-COLLER)
+================================================================================
+
+cd /Applications/MAMP/htdocs/strava
+
+# Vérifier que tout est là
+ls -la Dockerfile fly.toml app.py requirements.txt
+
+# Se connecter
+flyctl auth login
+
+# Configurer les secrets (si pas déjà fait)
+flyctl secrets set CLIENT_ID=149497
+flyctl secrets set CLIENT_SECRET=ce7f00ae80b9cfa3ca9cd503b15c73c368a3c97d
+flyctl secrets set REFRESH_TOKEN=1fc5f46d8e959312e0b994af8d2e1f57ac419cf7
+
+# DÉPLOYER (choisir UNE de ces commandes)
+flyctl deploy                                    # ← ESSAYER CELLE-CI EN PREMIER
+# OU
+./diagnostic_flyio.sh                           # ← Script avec diagnostic complet
+# OU
+flyctl launch --dockerfile Dockerfile --now     # ← Si les autres ne marchent pas
+
+================================================================================
+📞 SI RIEN NE FONCTIONNE
+================================================================================
+
+Exécutez le script de diagnostic qui va identifier le problème :
+
+   ./diagnostic_flyio.sh
+
+Ce script va :
+   ✅ Vérifier que tous les fichiers sont présents
+   ✅ Vérifier que vous êtes connecté à Fly.io
+   ✅ Vérifier la configuration
+   ✅ Déployer automatiquement si tout est OK
+   ✅ Afficher des messages d'erreur clairs si problème
+
+================================================================================
+🎉 APRÈS LE DÉPLOIEMENT RÉUSSI
+================================================================================
+
+Votre application sera accessible sur :
+   https://strava-app.fly.dev
+
+Commandes utiles :
+   flyctl logs       # Voir les logs en temps réel
+   flyctl status     # Vérifier le statut
+   flyctl open       # Ouvrir dans le navigateur
+
+================================================================================

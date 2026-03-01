@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – {{ user.get_full_name() }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep:        #07090f;
+            --bg-card:        rgba(255,255,255,0.038);
+            --bg-card-hover:  rgba(255,255,255,0.065);
+            --bg-stat:        rgba(255,255,255,0.04);
+            --bg-stat-hover:  rgba(255,255,255,0.07);
+            --border:         rgba(255,255,255,0.08);
+            --border-hover:   rgba(255,255,255,0.16);
+            --text-primary:   #eef0f8;
+            --text-secondary: rgba(238,240,248,0.52);
+            --text-muted:     rgba(238,240,248,0.28);
+            --accent:         #FF5733;
+            --accent-soft:    rgba(255,87,51,0.18);
+            --accent-glow:    rgba(255,87,51,0.28);
+            --hr-color:       #EF476F;
+            --gold:           #FFD166;
+
+            /* Sport accent colors */
+            --c-swim:    #06D6A0;
+            --c-ride:    #EF476F;
+            --c-run:     #2ECC71;
+            --c-walk:    #FFD166;
+            --c-hike:    #C49A6C;
+            --c-weight:  #A78BFA;
+            --c-workout: #FB8500;
+            --c-yoga:    #E85D75;
+            --c-ski:     #22D3EE;
+            --c-other:   #7C8FA6;
+        }
+
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background-color: var(--bg-deep);
+            background-image:
+                radial-gradient(ellipse 90% 70% at 15% -5%,  rgba(20,35,90,0.65)  0%, transparent 60%),
+                radial-gradient(ellipse 70% 60% at 85% 105%, rgba(35,18,68,0.45)  0%, transparent 55%),
+                radial-gradient(ellipse 50% 40% at 50%  50%, rgba(10,20,50,0.30)  0%, transparent 70%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px 24px 40px;
+        }
+
+        /* Noise grain overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.35;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─────────── HEADER ─────────── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 14px 22px;
+            margin-bottom: 44px;
+            background: rgba(255,255,255,0.045);
+            backdrop-filter: blur(24px) saturate(1.4);
+            -webkit-backdrop-filter: blur(24px) saturate(1.4);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            position: sticky;
+            top: 12px;
+            z-index: 200;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07);
+            animation: fadeDown 0.5s ease both;
+        }
+
+        .logo-small {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: brightness(1.05);
+        }
+
+        .header-sep {
+            width: 1px;
+            height: 32px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .user-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #FF8C42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-size: 1em;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 2px rgba(255,87,51,0.35), 0 0 18px rgba(255,87,51,0.18);
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-text-wrap {
+            line-height: 1.25;
+        }
+
+        .user-greeting-label {
+            font-size: 0.7em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 500;
+        }
+
+        .user-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95em;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 9px 17px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.84em;
+            letter-spacing: 0.01em;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #FF8C42);
+            color: #fff;
+            border-color: rgba(255,140,66,0.25);
+            box-shadow: 0 4px 14px rgba(255,87,51,0.28);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,87,51,0.42);
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.11);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        /* ─────────── CALORIES BANNER ─────────── */
+        .calories-banner {
+            display: flex;
+            align-items: stretch;
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 28px;
+            animation: fadeUp 0.5s 0.08s ease both;
+        }
+
+        .cal-stat {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 28px;
+            background: var(--bg-card);
+            transition: background 0.2s;
+        }
+
+        .cal-stat:hover { background: var(--bg-card-hover); }
+
+        .cal-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .cal-icon.today   { background: rgba(255,87,51,0.12); }
+        .cal-icon.week    { background: rgba(0,180,216,0.12); }
+
+        .cal-label {
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .cal-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .cal-value span {
+            font-size: 0.55em;
+            font-weight: 500;
+            color: var(--text-primary);
+            letter-spacing: 0.04em;
+            margin-left: 3px;
+        }
+
+        .cal-divider {
+            width: 1px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        /* ─────────── SECTION HEADING ─────────── */
+        .section-header {
+            margin-bottom: 28px;
+            animation: fadeUp 0.55s 0.1s ease both;
+        }
+
+        .section-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.72em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .section-eyebrow::before {
+            content: '';
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.5rem, 2.4vw, 2rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.04em;
+            line-height: 1;
+        }
+
+        /* ─────────── ACTIVITY GRID ─────────── */
+        .activities-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 18px;
+        }
+
+        /* ─────────── ACTIVITY CARD ─────────── */
+        .activity-card {
+            --sport-color: var(--c-other);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 26px 26px 24px;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+            transition: transform 0.38s cubic-bezier(0.34,1.15,0.64,1),
+                        background 0.25s ease,
+                        border-color 0.25s ease,
+                        box-shadow 0.35s ease;
+            animation: cardReveal 0.6s ease both;
+        }
+
+        .activity-card:nth-child(1) { animation-delay: 0.08s; }
+        .activity-card:nth-child(2) { animation-delay: 0.16s; }
+        .activity-card:nth-child(3) { animation-delay: 0.24s; }
+        .activity-card:nth-child(4) { animation-delay: 0.32s; }
+        .activity-card:nth-child(5) { animation-delay: 0.40s; }
+        .activity-card:nth-child(6) { animation-delay: 0.48s; }
+        .activity-card:nth-child(7) { animation-delay: 0.54s; }
+        .activity-card:nth-child(8) { animation-delay: 0.60s; }
+
+        /* Left sport stripe */
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            border-radius: 22px 0 0 22px;
+            background: var(--sport-color);
+            opacity: 0.6;
+            transition: width 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Ambient glow blob */
+        .activity-card::after {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: var(--sport-color);
+            opacity: 0;
+            filter: blur(55px);
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .activity-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-6px);
+            box-shadow: 0 24px 52px rgba(0,0,0,0.55);
+        }
+
+        .activity-card:hover::before { width: 4px; opacity: 1; }
+        .activity-card:hover::after  { opacity: 0.1; }
+
+        /* Sport color bindings */
+        .activity-card.swim    { --sport-color: var(--c-swim); }
+        .activity-card.ride    { --sport-color: var(--c-ride); }
+        .activity-card.run     { --sport-color: var(--c-run); }
+        .activity-card.walk    { --sport-color: var(--c-walk); }
+        .activity-card.hike    { --sport-color: var(--c-hike); }
+        .activity-card.weight  { --sport-color: var(--c-weight); }
+        .activity-card.workout { --sport-color: var(--c-workout); }
+        .activity-card.yoga    { --sport-color: var(--c-yoga); }
+        .activity-card.ski     { --sport-color: var(--c-ski); }
+        .activity-card.other   { --sport-color: var(--c-other); }
+
+        /* ─── Card top row ─── */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .activity-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            border: 1px solid currentColor;
+            opacity: 0.85;
+        }
+
+        /* Badge colors */
+        .activity-type-badge.swim    { color: var(--c-swim);    background: rgba(6,214,160,0.1); }
+        .activity-type-badge.ride    { color: var(--c-ride);    background: rgba(239,71,111,0.1); }
+        .activity-type-badge.run     { color: var(--c-run);     background: rgba(46,204,113,0.1); }
+        .activity-type-badge.walk    { color: var(--c-walk);    background: rgba(255,209,102,0.1); }
+        .activity-type-badge.hike    { color: var(--c-hike);    background: rgba(196,154,108,0.1); }
+        .activity-type-badge.weight  { color: var(--c-weight);  background: rgba(167,139,250,0.1); }
+        .activity-type-badge.workout { color: var(--c-workout); background: rgba(251,133,0,0.1); }
+        .activity-type-badge.yoga    { color: var(--c-yoga);    background: rgba(232,93,117,0.1); }
+        .activity-type-badge.ski     { color: var(--c-ski);     background: rgba(34,211,238,0.1); }
+        .activity-type-badge.other   { color: var(--c-other);   background: rgba(124,143,166,0.1); }
+
+        .activity-date {
+            font-size: 0.78em;
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        /* ─── Activity name ─── */
+        .activity-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        /* ─── Stats grid ─── */
+        .activity-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: var(--bg-stat);
+            border: 1px solid var(--border);
+            padding: 13px 14px;
+            border-radius: 13px;
+            transition: background 0.2s;
+        }
+
+        .activity-card:hover .stat-item {
+            background: var(--bg-stat-hover);
+        }
+
+        .stat-label {
+            font-size: 0.68em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.25em;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        /* ─── Heartrate section ─── */
+        .heartrate-section {
+            grid-column: 1 / -1;
+            background: rgba(239,71,111,0.09);
+            border: 1px solid rgba(239,71,111,0.2);
+            padding: 13px 16px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hr-pulse-icon {
+            font-size: 1.2em;
+            animation: heartbeat 1.6s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        .hr-text-block {
+            flex: 1;
+        }
+
+        .hr-label {
+            font-size: 0.66em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .hr-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        /* ─── Best time badge ─── */
+        .best-time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,209,102,0.1);
+            color: var(--gold);
+            border: 1px solid rgba(255,209,102,0.25);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.78em;
+            font-weight: 600;
+            margin-top: 14px;
+        }
+
+        /* ─── Email button ─── */
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .btn-email {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 0.78em;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-email:hover {
+            background: rgba(255,87,51,0.12);
+            color: var(--accent);
+            border-color: rgba(255,87,51,0.3);
+        }
+
+        /* ─────────── EMPTY / NO-STRAVA ─────────── */
+        .no-activities {
+            text-align: center;
+            padding: 80px 40px;
+            color: var(--text-secondary);
+            font-size: 1.05em;
+        }
+
+        .no-strava-notice {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 72px 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .no-strava-notice h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 2em;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+
+        .no-strava-notice p {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+            margin-bottom: 32px;
+        }
+
+        /* ─────────── STRAVA FOOTER ─────────── */
+        .strava-footer {
+            text-align: center;
+            margin-top: 52px;
+            padding-bottom: 16px;
+            opacity: 0.38;
+            transition: opacity 0.3s;
+        }
+
+        .strava-footer:hover { opacity: 0.65; }
+
+        /* ─────────── ANIMATIONS ─────────── */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(28px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15%       { transform: scale(1.25); }
+            30%       { transform: scale(1); }
+            45%       { transform: scale(1.18); }
+            60%       { transform: scale(1); }
+        }
+
+        /* ─────────── RESPONSIVE ─────────── */
+        @media (max-width: 768px) {
+            body { padding: 12px 12px 32px; }
+
+            .header {
+                position: relative;
+                top: 0;
+                flex-wrap: wrap;
+                gap: 12px;
+                padding: 14px 16px;
+                margin-bottom: 28px;
+            }
+
+            .header-sep { display: none; }
+
+            .header-actions {
+                width: 100%;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .activities-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ════════════ HEADER ════════════ -->
+    <header class="header">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="ScoringFit" class="logo-small">
+
+        <div class="header-sep"></div>
+
+        <div class="user-block">
+            <div class="user-avatar">
+                {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo }}" alt="{{ user.get_full_name() }}">
+                {% else %}
+                    {{ user.firstname[0] if user.firstname else user.email[0].upper() }}
+                {% endif %}
+            </div>
+            <div class="user-text-wrap">
+                <div class="user-greeting-label">Bienvenue</div>
+                <div class="user-name">{{ user.get_full_name() }}</div>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            {% if not user.has_strava_linked() %}
+            <a href="{{ url_for('login_strava') }}">
+                <img src="{{ url_for('static', filename='btn_strava_connect_x2.png') }}" alt="Connecter Strava" style="height:38px;width:auto;">
+            </a>
+            {% endif %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Actualiser
+            </a>
+            <a href="{{ url_for('history') }}" class="btn btn-primary">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Historique
+            </a>
+            <a href="{{ url_for('support') }}" class="btn btn-ghost">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                Support
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-ghost">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Déconnexion
+            </a>
+        </div>
+    </header>
+
+    <!-- ════════════ CONTENT ════════════ -->
+    {% if no_strava %}
+    <div class="no-strava-notice">
+        <h2>Connectez votre compte Strava</h2>
+        <p>Liez votre compte pour visualiser toutes vos activités sportives.</p>
+        <a href="{{ url_for('login_strava') }}">
+            <img src="{{ url_for('static', filename='btn_strava_connect_x2.png') }}" alt="Connecter Strava" style="height:52px;width:auto;">
+        </a>
+    </div>
+
+    {% else %}
+
+    <!-- ════ BANDEAU CALORIES ════ -->
+    <div class="calories-banner">
+        <div class="cal-stat">
+            <div class="cal-icon today">🔥</div>
+            <div>
+                <div class="cal-label">Calories aujourd'hui</div>
+                <div class="cal-value">
+                    {{ calories_today }}<span>kcal</span>
+                </div>
+            </div>
+        </div>
+        <div class="cal-divider"></div>
+        <div class="cal-stat">
+            <div class="cal-icon week">📅</div>
+            <div>
+                <div class="cal-label">Calories cette semaine</div>
+                <div class="cal-value">
+                    {{ calories_week }}<span>kcal</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <div class="section-eyebrow">Activité récente</div>
+        <h2 class="section-title">Vos dernières séances</h2>
+    </div>
+
+    {% if activities %}
+    <div class="activities-list">
+        {% for activity in activities %}
+        <div class="activity-card {{ activity.type_css }}">
+
+            <div class="card-top">
+                <span class="activity-type-badge {{ activity.type_css }}">
+                    {{ activity.type_icon }}&nbsp;{{ activity.type_label }}
+                </span>
+                {% set jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] %}
+                <span class="activity-date">{{ jours[activity.start_date.weekday()] }} {{ activity.start_date.strftime("%d/%m/%Y · %H:%M") }}</span>
+            </div>
+
+            <div class="activity-name">{{ activity.name }}</div>
+
+            <div class="activity-stats">
+                {% if activity.type != "Elliptical" %}
+                <div class="stat-item">
+                    <div class="stat-label">Distance</div>
+                    <div class="stat-value">{{ "%.2f"|format(activity.distance / 1000) }} km</div>
+                </div>
+                {% endif %}
+
+                <div class="stat-item">
+                    <div class="stat-label">Durée</div>
+                    <div class="stat-value">
+                        {% set hours = activity.moving_time // 3600 %}
+                        {% set minutes = (activity.moving_time % 3600) // 60 %}
+                        {% if hours > 0 %}{{ hours }}h {% endif %}{{ minutes }}min
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-label">Calories</div>
+                    <div class="stat-value">{{ activity.calories }} kcal</div>
+                </div>
+
+                {% if activity.type == "Swim" and activity.time_per_50m %}
+                <div class="stat-item">
+                    <div class="stat-label">Temps / 50m</div>
+                    <div class="stat-value">
+                        {% set mins = activity.time_per_50m // 60 %}
+                        {% set secs = activity.time_per_50m % 60 %}
+                        {{ "%d:%02d"|format(mins|int, secs|int) }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if activity.average_heartrate %}
+                <div class="heartrate-section">
+                    <span class="hr-pulse-icon">❤️</span>
+                    <div class="hr-text-block">
+                        <div class="hr-label">Pulsations cardiaques par minute</div>
+                        <div class="hr-value">
+                            Moy&nbsp;{{ "%.0f"|format(activity.average_heartrate) }}
+                            {% if activity.max_heartrate %}
+                            &nbsp;·&nbsp; Max&nbsp;{{ "%.0f"|format(activity.max_heartrate) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer">
+                {% if activity.type == "Swim" and activity.best_time_per_50m and activity.time_per_50m == activity.best_time_per_50m %}
+                <div class="best-time-badge">🏆 Meilleur temps du jour</div>
+                {% else %}
+                <span></span>
+                {% endif %}
+
+                <!-- Formulaire email caché -->
+                <form method="POST" action="{{ url_for('send_activity_email') }}">
+                    {% set hours = activity.moving_time // 3600 %}
+                    {% set minutes = (activity.moving_time % 3600) // 60 %}
+                    {% set jours2 = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'] %}
+                    <input type="hidden" name="activity_name" value="{{ activity.name }}">
+                    <input type="hidden" name="activity_type"  value="{{ activity.type_icon }} {{ activity.type_label }}">
+                    <input type="hidden" name="activity_date"  value="{{ jours2[activity.start_date.weekday()] }} {{ activity.start_date.strftime('%d/%m/%Y à %H:%M') }}">
+                    {% if activity.type != "Elliptical" %}
+                    <input type="hidden" name="distance" value="{{ '%.2f'|format(activity.distance / 1000) }} km">
+                    {% endif %}
+                    <input type="hidden" name="duration" value="{% if hours > 0 %}{{ hours }}h {% endif %}{{ minutes }}min">
+                    <input type="hidden" name="calories" value="{{ activity.calories }}">
+                    {% if activity.type == "Swim" and activity.time_per_50m %}
+                    {% set mins50 = (activity.time_per_50m // 60)|int %}
+                    {% set secs50 = (activity.time_per_50m % 60)|int %}
+                    <input type="hidden" name="time_50m" value="{{ '%d:%02d'|format(mins50, secs50) }}">
+                    {% endif %}
+                    {% if activity.average_heartrate %}
+                    <input type="hidden" name="avg_hr" value="{{ '%.0f'|format(activity.average_heartrate) }}">
+                    {% endif %}
+                    {% if activity.max_heartrate %}
+                    <input type="hidden" name="max_hr" value="{{ '%.0f'|format(activity.max_heartrate) }}">
+                    {% endif %}
+                    <button type="submit" class="btn-email">
+                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        Envoyer par email
+                    </button>
+                </form>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-activities">
+        <p>Aucune activité à afficher pour le moment.</p>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+    <!-- Badge officiel Strava -->
+    <div class="strava-footer">
+        <a href="https://www.strava.com" target="_blank">
+            <img src="{{ url_for('static', filename='powered_by_strava.png') }}" alt="Powered by Strava" style="height:28px;width:auto;">
+        </a>
+    </div>
+
+</div>
+</body>
+</html>

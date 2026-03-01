@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strava Stats - Accueil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .features h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .features ul {
+            list-style: none;
+        }
+
+        .features li {
+            padding: 8px 0;
+            color: #555;
+        }
+
+        .features li:before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
+
+        .btn-strava {
+            display: inline-block;
+            background: #FC4C02;
+            color: white;
+            padding: 18px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-strava:hover {
+            background: #E34402;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(252, 76, 2, 0.4);
+        }
+
+        .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🏃‍♂️🚴‍♂️🏊‍♂️</div>
+        <h1>Strava Stats</h1>
+        <p class="subtitle">Visualisez vos performances sportives</p>
+
+        <div class="features">
+            <h3>Fonctionnalités</h3>
+            <ul>
+                <li>Synchronisation automatique avec Strava</li>
+                <li>Statistiques détaillées par sport</li>
+                <li>Temps au 50m pour la natation</li>
+                <li>Pulsations cardiaques</li>
+                <li>Cumuls mensuels</li>
+                <li>Interface moderne et responsive</li>
+            </ul>
+        </div>
+
+        <a href="{{ url_for('login') }}" class="btn-strava">
+            🔗 Se connecter avec Strava
+        </a>
+
+        <p class="footer">
+            Connectez-vous avec votre compte Strava pour commencer
+        </p>
+    </div>
+</body>
+</html>

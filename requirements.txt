@@ -1,0 +1,6 @@
+Flask==3.1.2
+requests==2.32.5
+python-decouple==3.8
+gunicorn==21.2.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3

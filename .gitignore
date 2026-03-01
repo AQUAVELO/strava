@@ -1,0 +1,27 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist/
+build/
+venv/
+env/
+.venv
+*.log
+.DS_Store
+.vscode/
+.idea/
+fly.toml.bak
+# Bases de données locales
+*.db
+*.sqlite
+*.sqlite3
+instance/
+# Fichiers locaux générés
+skill/
+landing_pages/

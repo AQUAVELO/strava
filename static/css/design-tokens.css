@@ -1,0 +1,262 @@
+/**
+ * ScoringFit Design Tokens
+ * Energetic Fitness Theme - 2025
+ *
+ * This file contains all design variables (colors, spacing, typography, etc.)
+ * used across the application for consistent styling.
+ */
+
+:root {
+    /* ============================================
+       COLORS - PRIMARY (Energetic Coral/Orange)
+       ============================================ */
+    --color-primary-start: #FF6B35;
+    --color-primary-mid: #FF8C42;
+    --color-primary-end: #F25C54;
+    --gradient-primary: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-mid) 50%, var(--color-primary-end) 100%);
+
+    /* ============================================
+       COLORS - SECONDARY (Electric Blue)
+       ============================================ */
+    --color-secondary-start: #00B4D8;
+    --color-secondary-end: #0077B6;
+    --gradient-secondary: linear-gradient(135deg, var(--color-secondary-start) 0%, var(--color-secondary-end) 100%);
+
+    /* ============================================
+       BACKGROUNDS - DARK (Navy Gradient)
+       ============================================ */
+    --bg-dark-start: #0A1128;
+    --bg-dark-mid: #1B263B;
+    --bg-dark-end: #16213E;
+    --gradient-bg-dark: linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-mid) 50%, var(--bg-dark-end) 100%);
+
+    /* ============================================
+       BACKGROUNDS - LIGHT
+       ============================================ */
+    --bg-light: #F8F9FA;
+    --bg-light-accent: #E9ECEF;
+    --bg-white: #FFFFFF;
+
+    /* ============================================
+       SPORT COLORS (Enhanced)
+       ============================================ */
+    --sport-swim: #06D6A0;
+    --sport-swim-dark: #04AA7F;
+    --sport-ride: #EF476F;
+    --sport-ride-dark: #D63651;
+    --sport-run: #26C485;
+    --sport-run-dark: #1E9D6A;
+    --sport-walk: #FFD166;
+    --sport-walk-dark: #E6B84D;
+    --sport-hike: #9B7653;
+    --sport-hike-dark: #7D5E42;
+    --sport-weight: #8B5CF6;
+    --sport-weight-dark: #7C3AED;
+    --sport-workout: #FB8500;
+    --sport-workout-dark: #E27600;
+    --sport-yoga: #E85D75;
+    --sport-yoga-dark: #D4475E;
+    --sport-ski: #06B6D4;
+    --sport-ski-dark: #0891B2;
+
+    /* ============================================
+       THIRD-PARTY BRANDS
+       ============================================ */
+    --strava-orange: #FC4C02;
+    --strava-hover: #E34402;
+    --google-blue: #4285F4;
+
+    /* ============================================
+       UI STATE COLORS
+       ============================================ */
+    --success: #10B981;
+    --success-light: #D1FAE5;
+    --success-dark: #059669;
+
+    --warning: #F59E0B;
+    --warning-light: #FEF3C7;
+    --warning-dark: #D97706;
+
+    --error: #EF4444;
+    --error-light: #FEE2E2;
+    --error-dark: #DC2626;
+
+    --info: #3B82F6;
+    --info-light: #DBEAFE;
+    --info-dark: #2563EB;
+
+    /* ============================================
+       TEXT COLORS
+       ============================================ */
+    --text-primary: #1A1A1A;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+    --text-inverse: #FFFFFF;
+    --text-muted: rgba(255, 255, 255, 0.7);
+
+    /* ============================================
+       BORDERS & DIVIDERS
+       ============================================ */
+    --border-light: rgba(255, 255, 255, 0.1);
+    --border-light-strong: rgba(255, 255, 255, 0.18);
+    --border-dark: rgba(0, 0, 0, 0.1);
+    --border-dark-strong: rgba(0, 0, 0, 0.2);
+
+    /* ============================================
+       SPACING SCALE (4px base)
+       ============================================ */
+    --space-xs: 0.25rem;    /* 4px */
+    --space-sm: 0.5rem;     /* 8px */
+    --space-md: 1rem;       /* 16px */
+    --space-lg: 1.5rem;     /* 24px */
+    --space-xl: 2rem;       /* 32px */
+    --space-2xl: 3rem;      /* 48px */
+    --space-3xl: 4rem;      /* 64px */
+    --space-4xl: 6rem;      /* 96px */
+    --space-5xl: 8rem;      /* 128px */
+
+    /* ============================================
+       TYPOGRAPHY - FONT FAMILIES
+       ============================================ */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+    /* ============================================
+       TYPOGRAPHY - FONT SIZES (Fluid)
+       ============================================ */
+    --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+    --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+    --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    --text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.5rem);
+    --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.875rem);
+    --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+    --text-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 3rem);
+    --text-4xl: clamp(2.25rem, 1.75rem + 2.5vw, 4rem);
+    --text-5xl: clamp(3rem, 2.25rem + 3.75vw, 6rem);
+
+    /* ============================================
+       TYPOGRAPHY - FONT WEIGHTS
+       ============================================ */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-extrabold: 800;
+
+    /* ============================================
+       TYPOGRAPHY - LINE HEIGHTS
+       ============================================ */
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+    --leading-loose: 2;
+
+    /* ============================================
+       BORDER RADIUS
+       ============================================ */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-2xl: 32px;
+    --radius-full: 9999px;
+
+    /* ============================================
+       SHADOWS
+       ============================================ */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.25);
+    --shadow-2xl: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+    /* Primary color shadows */
+    --shadow-primary: 0 10px 30px rgba(255, 107, 53, 0.3);
+    --shadow-primary-hover: 0 15px 40px rgba(255, 107, 53, 0.4);
+
+    /* Secondary color shadows */
+    --shadow-secondary: 0 10px 30px rgba(0, 180, 216, 0.3);
+    --shadow-secondary-hover: 0 15px 40px rgba(0, 180, 216, 0.4);
+
+    /* ============================================
+       TRANSITIONS
+       ============================================ */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* ============================================
+       Z-INDEX SCALE
+       ============================================ */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+
+    /* ============================================
+       GLASS MORPHISM
+       ============================================ */
+    --glass-bg: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.06) 100%
+    );
+    --glass-bg-dark: linear-gradient(
+        135deg,
+        rgba(27, 38, 59, 0.85) 0%,
+        rgba(22, 33, 62, 0.8) 100%
+    );
+    --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    /* ============================================
+       BREAKPOINTS (for reference in JS)
+       ============================================ */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* ============================================
+       CONTAINER WIDTHS
+       ============================================ */
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1280px;
+    --container-2xl: 1400px;
+}
+
+/* ============================================
+   DARK MODE PREPARATION
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Could add automatic dark mode adjustments here */
+    }
+}
+
+/* ============================================
+   MANUAL DARK MODE
+   ============================================ */
+[data-theme="dark"] {
+    --bg-primary: var(--bg-dark-start);
+    --bg-secondary: var(--bg-dark-mid);
+    --text-primary: var(--text-inverse);
+    --text-secondary: var(--text-muted);
+}
+
+[data-theme="light"] {
+    --bg-primary: var(--bg-white);
+    --bg-secondary: var(--bg-light);
+    --text-primary: var(--text-primary);
+    --text-secondary: var(--text-secondary);
+}

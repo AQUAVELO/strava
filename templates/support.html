@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoringFit - Support</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #1B263B 50%, #16213E 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.85);
+            font-size: 1.1em;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-title .icon {
+            font-size: 1.4em;
+        }
+
+        .card p, .card li {
+            color: #555;
+            line-height: 1.75;
+            font-size: 0.97em;
+        }
+
+        .card ul, .card ol {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .card li {
+            margin-bottom: 6px;
+        }
+
+        .highlight {
+            background: #f0f4ff;
+            border-left: 4px solid #00B4D8;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-top: 14px;
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        .highlight strong {
+            color: #00B4D8;
+        }
+
+        /* Formulaire de contact */
+        .contact-card {
+            background: linear-gradient(135deg, #00B4D8, #764ba2);
+            color: white;
+        }
+
+        .contact-card .card-title {
+            color: white;
+            border-bottom-color: rgba(255,255,255,0.25);
+        }
+
+        .contact-card p {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            font-size: 0.97em;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .form-group select option {
+            color: #333;
+            background: white;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        .btn-send {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #00B4D8;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 6px;
+        }
+
+        .btn-send:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .email-fallback {
+            text-align: center;
+            margin-top: 16px;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.9em;
+        }
+
+        .email-fallback a {
+            color: white;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="ScoringFit Logo" class="logo">
+            <h1>🛟 Centre d'aide</h1>
+            <p>Trouvez une réponse à vos questions ou contactez-nous</p>
+        </div>
+
+        <a href="{{ url_for('login') }}" class="back-link">← Retour à la connexion</a>
+
+        <!-- Problème de connexion Strava -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">⚠️</span> Problème de connexion avec Strava
+            </div>
+            <p>Si vous voyez l'erreur <strong>"Erreur 403 : limite d'athlètes dépassée"</strong>, c'est normal — notre application est en phase de développement et Strava autorise un nombre limité de comptes connectés.</p>
+            <p style="margin-top: 10px;">Si vous voyez un compte qui n'est pas le vôtre après connexion, cela est dû à une session Strava active dans votre navigateur.</p>
+            <div class="highlight">
+                <strong>Solution :</strong> Utilisez toujours une <strong>fenêtre de navigation privée</strong> (Cmd+Maj+N sur Mac) pour lier votre compte Strava, après vous être connecté à ScoringFit.
+            </div>
+        </div>
+
+        <!-- Comment connecter/déconnecter Strava -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">🔑</span> Comment connecter / déconnecter mon compte Strava
+            </div>
+            <p><strong>Pour connecter Strava :</strong></p>
+            <ol>
+                <li>Connectez-vous à ScoringFit avec votre email et mot de passe.</li>
+                <li>Sur votre tableau de bord, cliquez sur le bouton <strong>"🔗 Lier Strava"</strong>.</li>
+                <li>Vous serez redirigé vers Strava pour autoriser l'accès.</li>
+                <li>Une fois validé, vos activités apparaîtront automatiquement.</li>
+            </ol>
+            <div class="highlight" style="margin-top: 14px;">
+                <strong>Conseil :</strong> Assurez-vous d'être connecté sur Strava.com avec <strong>votre propre compte</strong> avant de cliquer sur "Lier Strava".
+            </div>
+            <p style="margin-top: 14px;"><strong>Pour déconnecter Strava :</strong></p>
+            <p>Rendez-vous sur <a href="https://www.strava.com/settings/apps" target="_blank" style="color: #00B4D8;">strava.com/settings/apps</a> et révoquez l'accès à ScoringFit.</p>
+        </div>
+
+        <!-- Données non synchronisées -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">♻️</span> Données Strava non synchronisées
+            </div>
+            <p>Si vos activités récentes n'apparaissent pas sur votre tableau de bord :</p>
+            <ul>
+                <li>Cliquez sur le bouton <strong>"🔄 Actualiser"</strong> dans votre tableau de bord.</li>
+                <li>Vérifiez que votre activité est bien enregistrée et visible sur <a href="https://www.strava.com" target="_blank" style="color: #00B4D8;">strava.com</a>.</li>
+                <li>Les activités privées sur Strava ne sont pas accessibles.</li>
+                <li>Si le problème persiste après 10 minutes, contactez-nous ci-dessous.</li>
+            </ul>
+        </div>
+
+        <!-- Supprimer mes données -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">🗑️</span> Comment supprimer mes données / mon compte
+            </div>
+            <p>Conformément au RGPD, vous avez le droit à la suppression de vos données personnelles.</p>
+            <ul style="margin-top: 10px;">
+                <li>Envoyez-nous une demande via le formulaire ci-dessous en indiquant <strong>"Suppression de compte"</strong> dans le sujet.</li>
+                <li>Nous supprimerons votre compte et toutes vos données dans un délai de <strong>48 heures</strong>.</li>
+                <li>Vos données Strava restent sur les serveurs de Strava — pour les supprimer, rendez-vous sur votre compte Strava.</li>
+            </ul>
+        </div>
+
+        <!-- Formulaire de contact -->
+        <div class="card contact-card">
+            <div class="card-title">
+                <span class="icon">📩</span> Nous contacter
+            </div>
+            <p style="margin-bottom: 20px;">Une question ou un problème non résolu ? Envoyez-nous un message.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: white; font-weight: 500;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('support') }}">
+                <div class="form-group">
+                    <label for="name">Votre nom</label>
+                    <input type="text" id="name" name="name" placeholder="Ex : Hélène Denans" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Votre email</label>
+                    <input type="email" id="email" name="email" placeholder="votre@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Sujet</label>
+                    <select id="subject" name="subject" required>
+                        <option value="" disabled selected>Choisissez un sujet...</option>
+                        <option>Problème de connexion Strava</option>
+                        <option>Données non synchronisées</option>
+                        <option>Suppression de compte</option>
+                        <option>Autre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Décrivez votre problème..." required></textarea>
+                </div>
+                <button type="submit" class="btn-send">✉️ Envoyer le message</button>
+            </form>
+
+            <p class="email-fallback">Ou contactez-nous directement : <a href="mailto:aqua.cannes@gmail.com">aqua.cannes@gmail.com</a></p>
+        </div>
+    </div>
+</body>
+</html>

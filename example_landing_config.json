@@ -1,0 +1,23 @@
+{
+  "url": "https://scoringfit.app",
+  "title": "ScoringFit - Your Fitness Companion",
+  "headline": "Track Your Progress Like Never Before",
+  "description": "Connect your Strava account and get beautiful insights into your fitness journey",
+  "cta": "Connect with Strava",
+  "features": [
+    "Automatic sync with Strava",
+    "Detailed sport statistics",
+    "Swimming pace analysis (50m splits)",
+    "Heart rate monitoring",
+    "Monthly summaries and trends",
+    "Modern responsive interface"
+  ],
+  "logo": "./static/logo.png",
+  "colors": {
+    "gradient_start": "#0f0c29",
+    "gradient_mid": "#302b63",
+    "gradient_end": "#24243e",
+    "accent_color": "#667eea"
+  },
+  "output": "landing_pages/scoringfit_promo.html"
+}

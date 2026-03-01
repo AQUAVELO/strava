@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - {{ user.get_full_name() }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0A1128 0%, #1B263B 50%, #16213E 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo-small {
+            width: 80px;
+            height: auto;
+            margin-right: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B35 0%, #F25C54 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .user-photo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 1.4em;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B35 0%, #F25C54 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #F25C54 0%, #E03E2F 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .month-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .month-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: left 0.5s;
+        }
+
+        .month-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .month-card:hover::before {
+            left: 100%;
+        }
+
+        .month-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #00B4D8;
+        }
+
+        .month-title {
+            font-size: 1.8em;
+            color: #FF6B35;
+            font-weight: bold;
+        }
+
+        .month-icon {
+            font-size: 2em;
+        }
+
+        .sport-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sport-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sport-card:hover {
+            transform: translateX(5px);
+            background: #e9ecef;
+        }
+
+        .sport-card.swim {
+            border-left: 4px solid #06D6A0;
+        }
+
+        .sport-card.ride {
+            border-left: 4px solid #EF476F;
+        }
+
+        .sport-card.run {
+            border-left: 4px solid #26C485;
+        }
+
+        .sport-card.walk {
+            border-left: 4px solid #FFD166;
+        }
+
+        .sport-card.hike {
+            border-left: 4px solid #9B7653;
+        }
+
+        .sport-card.weight {
+            border-left: 4px solid #8B5CF6;
+        }
+
+        .sport-card.workout {
+            border-left: 4px solid #FB8500;
+        }
+
+        .sport-card.yoga {
+            border-left: 4px solid #E85D75;
+        }
+
+        .sport-card.ski {
+            border-left: 4px solid #06B6D4;
+        }
+
+        .sport-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sport-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .sport-data {
+            color: #666;
+            font-size: 0.95em;
+            text-align: right;
+        }
+
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF6B35 0%, #F25C54 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="ScoringFit Logo" class="logo-small">
+            <div class="user-info">
+                <div class="user-photo">
+                    {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo }}" alt="{{ user.get_full_name() }}">
+                    {% else %}
+                    {{ user.firstname[0] if user.firstname else user.email[0].upper() }}
+                    {% endif %}
+                </div>
+                <div class="user-name">{{ user.get_full_name() }} 📊</div>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">🏠 Dashboard</a>
+                <a href="{{ url_for('support') }}" class="btn btn-secondary">🛟 Support</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">🚪 Déconnexion</a>
+            </div>
+        </div>
+
+        <h1>📅 Historique Complet</h1>
+        <p class="subtitle">{{ total_activities }} activités analysées</p>
+
+        <div class="history-grid">
+            {% for month, sports in monthly_totals.items() %}
+            <div class="month-card">
+                <div class="month-header">
+                    <div class="month-title">{{ month }}</div>
+                    <div class="month-icon">📊</div>
+                </div>
+                <div class="sport-stats">
+                    {% for sport_type, stats in sports.items() %}
+                    {% if stats.distance > 0 or stats.moving_time > 0 %}
+                    {% set icons = {"Swim":"🏊‍♂️","Ride":"🚴‍♂️","Run":"🏃‍♂️","Walk":"🚶‍♂️","Hike":"🥾","WeightTraining":"🏋️","Workout":"💪","Yoga":"🧘","Elliptical":"🚴💧","Other":"🏅","EBikeRide":"⚡🚴","VirtualRide":"🖥️🚴","NordicSki":"⛷️","AlpineSki":"🎿"} %}
+                    {% set labels = {"Swim":"Natation","Ride":"Vélo","Run":"Course","Walk":"Marche","Hike":"Randonnée","WeightTraining":"Musculation","Workout":"Entraînement","Yoga":"Yoga","Elliptical":"Aquavelo","Other":"Autre","EBikeRide":"Vélo électrique","VirtualRide":"Vélo virtuel","NordicSki":"Ski nordique","AlpineSki":"Ski alpin"} %}
+                    {% set css = {"Swim":"swim","Ride":"ride","Run":"run","Walk":"walk","Hike":"hike","WeightTraining":"weight","Workout":"workout","Yoga":"yoga","Elliptical":"ride","Other":"other","EBikeRide":"ride","VirtualRide":"ride","NordicSki":"ski","AlpineSki":"ski"} %}
+                    <div class="sport-card {{ css.get(sport_type, 'other') }}">
+                        <div class="sport-info">
+                            <span style="font-size: 1.3em;">{{ icons.get(sport_type, '🏅') }}</span>
+                            <span class="sport-name">{{ labels.get(sport_type, sport_type) }}</span>
+                        </div>
+                        <div class="sport-data">
+                            {% if stats.distance > 0 and sport_type != "Elliptical" %}<strong>{{ "%.1f"|format(stats.distance) }} km</strong><br>{% endif %}
+                            {{ "%.0f"|format(stats.moving_time * 60) }} minutes
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <a href="{{ url_for('dashboard') }}" class="back-button" title="Retour au Dashboard">
+        🏠
+    </a>
+
+    <!-- Badge officiel Strava obligatoire -->
+    <div style="text-align: center; margin-top: 50px; padding-bottom: 20px;">
+        <a href="https://www.strava.com" target="_blank">
+            <img src="{{ url_for('static', filename='powered_by_strava.png') }}" alt="Powered by Strava" style="height:30px; width:auto; opacity:0.8;">
+        </a>
+    </div>
+</body>
+</html>
