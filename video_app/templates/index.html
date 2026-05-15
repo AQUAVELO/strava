@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo → Vidéo AI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d14;
+      --surface: #16161f;
+      --surface2: #1e1e2e;
+      --border: #2a2a3d;
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --accent-glow: rgba(124, 58, 237, 0.35);
+      --text: #e8e8f0;
+      --muted: #8888aa;
+      --success: #22c55e;
+      --error: #ef4444;
+      --radius: 14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    header p {
+      color: var(--muted);
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    /* ── Drop zone ── */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .drop-zone .icon {
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+    .drop-zone .label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .drop-zone .label span {
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+    /* Preview inside drop zone */
+    #preview-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #preview-container img {
+      max-height: 160px;
+      max-width: 100%;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+    #remove-image {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    #remove-image:hover { color: var(--error); border-color: var(--error); }
+
+    /* ── Textarea ── */
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+      margin-top: 1.5rem;
+      display: block;
+    }
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      padding: 0.9rem 1rem;
+      resize: vertical;
+      min-height: 120px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+
+    /* ── Button ── */
+    button[type="submit"] {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 0 24px var(--accent-glow);
+    }
+    button[type="submit"]:hover { opacity: 0.9; }
+    button[type="submit"]:active { transform: scale(0.98); }
+    button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Status panel ── */
+    #status-panel {
+      display: none;
+      margin-top: 2rem;
+    }
+
+    .status-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent-light);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-title {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    /* Progress bar */
+    .progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #60a5fa);
+      border-radius: 2px;
+      width: 5%;
+      transition: width 1.5s ease;
+    }
+
+    /* Prompt reveal */
+    .prompt-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+    .prompt-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-light);
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ── Result ── */
+    #result-panel {
+      display: none;
+      margin-top: 2rem;
+    }
+    .result-box {
+      background: var(--surface2);
+      border: 1px solid #22c55e44;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .result-box video {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 1rem;
+      background: #000;
+    }
+    .result-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-secondary {
+      padding: 0.55rem 1.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--accent-light); }
+
+    /* ── Error ── */
+    #error-panel {
+      display: none;
+      margin-top: 2rem;
+    }
+    .error-box {
+      background: #1a0808;
+      border: 1px solid #ef444444;
+      border-radius: var(--radius);
+      padding: 1.2rem 1.5rem;
+      color: #fca5a5;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 500px) {
+      header h1 { font-size: 1.8rem; }
+      .card { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Photo → Vidéo AI</h1>
+  <p>Décrivez votre vision · Ajoutez une photo · Obtenez une vidéo cinématique</p>
+</header>
+
+<div class="card">
+  <form id="gen-form" enctype="multipart/form-data">
+
+    <!-- Image upload -->
+    <label class="field-label">Photo de référence <span style="font-weight:400;color:var(--muted)">(optionnelle)</span></label>
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" name="image" id="image-input" accept=".png,.jpg,.jpeg,.webp,.gif" />
+      <div id="drop-content">
+        <div class="icon">🖼️</div>
+        <div class="label">Glissez une image ici ou <span>parcourir</span></div>
+        <div class="label" style="font-size:0.78rem">PNG, JPG, WEBP, GIF · max 20 MB</div>
+      </div>
+      <div id="preview-container">
+        <img id="preview-img" src="" alt="preview" />
+        <button type="button" id="remove-image">✕ Supprimer</button>
+      </div>
+    </div>
+
+    <!-- Text request -->
+    <label class="field-label" for="request-input">Votre description</label>
+    <textarea
+      id="request-input"
+      name="request"
+      placeholder="Ex: Une femme marche sur une plage au coucher de soleil, plan large cinématique, lumière dorée et vagues douces..."
+      required
+    ></textarea>
+
+    <button type="submit" id="submit-btn">Générer la vidéo ✨</button>
+  </form>
+</div>
+
+<!-- Status panel -->
+<div id="status-panel" style="width:100%;max-width:680px;">
+  <div class="status-box">
+    <div class="status-header">
+      <div class="spinner" id="status-spinner"></div>
+      <span class="status-title" id="status-text">Génération en cours…</span>
+    </div>
+    <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="prompt-label">Prompt optimisé par Claude</div>
+    <div class="prompt-box" id="prompt-display"></div>
+  </div>
+</div>
+
+<!-- Result panel -->
+<div id="result-panel" style="width:100%;max-width:680px;">
+  <div class="result-box">
+    <div style="color:var(--success);font-weight:700;font-size:1.1rem">✅ Vidéo générée !</div>
+    <video id="result-video" controls autoplay loop></video>
+    <div class="result-actions">
+      <a id="download-link" href="#" download="video.mp4" class="btn-secondary">⬇️ Télécharger</a>
+      <button class="btn-secondary" id="new-gen-btn">🔄 Nouvelle génération</button>
+    </div>
+  </div>
+</div>
+
+<!-- Error panel -->
+<div id="error-panel" style="width:100%;max-width:680px;">
+  <div class="error-box" id="error-text"></div>
+</div>
+
+<script>
+  const form = document.getElementById('gen-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const imageInput = document.getElementById('image-input');
+  const dropZone = document.getElementById('drop-zone');
+  const dropContent = document.getElementById('drop-content');
+  const previewContainer = document.getElementById('preview-container');
+  const previewImg = document.getElementById('preview-img');
+  const removeImageBtn = document.getElementById('remove-image');
+  const statusPanel = document.getElementById('status-panel');
+  const resultPanel = document.getElementById('result-panel');
+  const errorPanel = document.getElementById('error-panel');
+  const statusText = document.getElementById('status-text');
+  const progressBar = document.getElementById('progress-bar');
+  const promptDisplay = document.getElementById('prompt-display');
+  const resultVideo = document.getElementById('result-video');
+  const downloadLink = document.getElementById('download-link');
+  const newGenBtn = document.getElementById('new-gen-btn');
+
+  let pollInterval = null;
+  let progressValue = 5;
+
+  // ── Image preview ──
+  function showPreview(file) {
+    const url = URL.createObjectURL(file);
+    previewImg.src = url;
+    dropContent.style.display = 'none';
+    previewContainer.style.display = 'flex';
+  }
+
+  function clearImage() {
+    imageInput.value = '';
+    previewImg.src = '';
+    dropContent.style.display = 'flex';
+    previewContainer.style.display = 'none';
+  }
+
+  imageInput.addEventListener('change', () => {
+    if (imageInput.files[0]) showPreview(imageInput.files[0]);
+  });
+
+  removeImageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    clearImage();
+  });
+
+  // Drag & drop
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      imageInput.files = dt.files;
+      showPreview(file);
+    }
+  });
+
+  // ── Progress animation ──
+  function animateProgress(target) {
+    if (progressValue < target) {
+      progressValue = Math.min(progressValue + 3, target);
+      progressBar.style.width = progressValue + '%';
+    }
+  }
+
+  function startProgressAnimation() {
+    progressValue = 5;
+    progressBar.style.width = '5%';
+    // Slowly advance to 85% over ~90s, leaving room for "done"
+    const timer = setInterval(() => {
+      if (progressValue < 85) animateProgress(progressValue + 1);
+      else clearInterval(timer);
+    }, 1200);
+    return timer;
+  }
+
+  // ── Reset UI ──
+  function resetUI() {
+    statusPanel.style.display = 'none';
+    resultPanel.style.display = 'none';
+    errorPanel.style.display = 'none';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Générer la vidéo ✨';
+    if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  }
+
+  function showError(msg) {
+    resetUI();
+    errorPanel.style.display = 'block';
+    document.getElementById('error-text').textContent = '❌ ' + msg;
+  }
+
+  // ── Polling ──
+  function pollStatus(generationId) {
+    let attempts = 0;
+    const maxAttempts = 120; // ~4 min at 2s intervals
+
+    pollInterval = setInterval(async () => {
+      attempts++;
+      if (attempts > maxAttempts) {
+        clearInterval(pollInterval);
+        showError('Délai dépassé. La génération a pris trop longtemps.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/status/${generationId}`);
+        const data = await res.json();
+
+        if (data.error) { clearInterval(pollInterval); showError(data.error); return; }
+
+        const s = (data.status || '').toLowerCase();
+
+        if (s === 'completed' || s === 'succeeded' || s === 'done') {
+          clearInterval(pollInterval);
+          progressBar.style.width = '100%';
+          statusText.textContent = 'Terminé !';
+          document.getElementById('status-spinner').style.display = 'none';
+
+          // Find video URL
+          const videoUrl = data.output_url || data.video_url || data.url ||
+            (data.outputs && data.outputs[0]) || (data.output && data.output[0]);
+
+          if (videoUrl) {
+            setTimeout(() => {
+              statusPanel.style.display = 'none';
+              resultPanel.style.display = 'block';
+              resultVideo.src = videoUrl;
+              downloadLink.href = videoUrl;
+              submitBtn.disabled = false;
+            }, 800);
+          } else {
+            showError('Vidéo générée mais URL introuvable. Réponse : ' + JSON.stringify(data));
+          }
+
+        } else if (s === 'failed' || s === 'error') {
+          clearInterval(pollInterval);
+          showError(data.error || data.message || 'La génération a échoué.');
+        } else {
+          // still pending/processing
+          if (data.progress) {
+            progressBar.style.width = Math.max(5, Math.min(90, data.progress)) + '%';
+          }
+          const labels = {
+            queued: 'En file d\'attente…',
+            pending: 'En attente…',
+            processing: 'Traitement en cours…',
+            running: 'Génération en cours…',
+          };
+          statusText.textContent = labels[s] || 'Génération en cours…';
+        }
+      } catch (err) {
+        console.error('Poll error:', err);
+      }
+    }, 2000);
+  }
+
+  // ── Form submit ──
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    resetUI();
+
+    const requestText = document.getElementById('request-input').value.trim();
+    if (!requestText) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours…';
+    statusPanel.style.display = 'block';
+    statusText.textContent = 'Optimisation du prompt avec Claude…';
+    startProgressAnimation();
+
+    const formData = new FormData(form);
+
+    try {
+      const res = await fetch('/api/generate', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        showError(data.error || 'Erreur lors de la soumission.');
+        return;
+      }
+
+      promptDisplay.textContent = data.enhanced_prompt || '';
+      statusText.textContent = 'Génération vidéo en cours…';
+      submitBtn.textContent = 'Génération…';
+
+      if (data.generation_id) {
+        pollStatus(data.generation_id);
+      } else {
+        showError('Aucun ID de génération reçu. Réponse : ' + JSON.stringify(data));
+      }
+
+    } catch (err) {
+      showError('Erreur réseau : ' + err.message);
+    }
+  });
+
+  newGenBtn.addEventListener('click', () => {
+    resetUI();
+    clearImage();
+    document.getElementById('request-input').value = '';
+  });
+</script>
+</body>
+</html>
