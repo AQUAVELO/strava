@@ -470,9 +470,9 @@
   }
 
   // ── Polling ──
-  function pollStatus(generationId) {
+  function pollStatus(jobId) {
     let attempts = 0;
-    const maxAttempts = 120; // ~4 min at 2s intervals
+    const maxAttempts = 150; // ~5 min at 2s intervals (Playwright browser gen takes longer)
 
     pollInterval = setInterval(async () => {
       attempts++;
@@ -483,23 +483,24 @@
       }
 
       try {
-        const res = await fetch(`/api/status/${generationId}`);
+        const res = await fetch(`/api/status/${jobId}`);
         const data = await res.json();
 
-        if (data.error) { clearInterval(pollInterval); showError(data.error); return; }
+        if (data.error && data.status === 'failed') {
+          clearInterval(pollInterval);
+          showError(data.error);
+          return;
+        }
 
         const s = (data.status || '').toLowerCase();
 
-        if (s === 'completed' || s === 'succeeded' || s === 'done') {
+        if (s === 'completed') {
           clearInterval(pollInterval);
           progressBar.style.width = '100%';
           statusText.textContent = 'Terminé !';
           document.getElementById('status-spinner').style.display = 'none';
 
-          // Find video URL
-          const videoUrl = data.output_url || data.video_url || data.url ||
-            (data.outputs && data.outputs[0]) || (data.output && data.output[0]);
-
+          const videoUrl = data.video_url;
           if (videoUrl) {
             setTimeout(() => {
               statusPanel.style.display = 'none';
@@ -509,22 +510,18 @@
               submitBtn.disabled = false;
             }, 800);
           } else {
-            showError('Vidéo générée mais URL introuvable. Réponse : ' + JSON.stringify(data));
+            showError('Vidéo générée mais URL introuvable.');
           }
 
-        } else if (s === 'failed' || s === 'error') {
+        } else if (s === 'failed') {
           clearInterval(pollInterval);
-          showError(data.error || data.message || 'La génération a échoué.');
+          showError(data.error || 'La génération a échoué.');
         } else {
-          // still pending/processing
-          if (data.progress) {
-            progressBar.style.width = Math.max(5, Math.min(90, data.progress)) + '%';
-          }
           const labels = {
-            queued: 'En file d\'attente…',
-            pending: 'En attente…',
-            processing: 'Traitement en cours…',
-            running: 'Génération en cours…',
+            queued:     'En file d\'attente…',
+            generating: 'Higgsfield génère la vidéo via navigateur…',
+            logging_in: 'Connexion à Higgsfield…',
+            typing_prompt: 'Saisie du prompt…',
           };
           statusText.textContent = labels[s] || 'Génération en cours…';
         }
@@ -560,13 +557,13 @@
       }
 
       promptDisplay.textContent = data.enhanced_prompt || '';
-      statusText.textContent = 'Génération vidéo en cours…';
+      statusText.textContent = 'Connexion à Higgsfield et lancement du navigateur…';
       submitBtn.textContent = 'Génération…';
 
-      if (data.generation_id) {
-        pollStatus(data.generation_id);
+      if (data.job_id) {
+        pollStatus(data.job_id);
       } else {
-        showError('Aucun ID de génération reçu. Réponse : ' + JSON.stringify(data));
+        showError('Aucun ID de job reçu. Réponse : ' + JSON.stringify(data));
       }
 
     } catch (err) {

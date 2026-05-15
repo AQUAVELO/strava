@@ -1,13 +1,15 @@
-import os
-import base64
-import time
-import uuid
 import logging
+import os
+import tempfile
+import threading
+import uuid
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify
+
 import anthropic
-import requests
 from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template, request
+
+from higgsfield_scraper import HiggsFieldScraper
 
 load_dotenv()
 
@@ -15,13 +17,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB max upload
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 MB
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-HIGGSFIELD_API_KEY = os.getenv("HIGGSFIELD_API_KEY")
-HIGGSFIELD_BASE_URL = "https://api.higgsfield.ai/v1"
+HIGGSFIELD_EMAIL = os.getenv("HIGGSFIELD_EMAIL")
+HIGGSFIELD_PASSWORD = os.getenv("HIGGSFIELD_PASSWORD")
+HIGGSFIELD_COOKIES = os.getenv("HIGGSFIELD_COOKIES")
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
+
+# In-memory job store: job_id → {status, enhanced_prompt, video_url, error}
+jobs: dict[str, dict] = {}
 
 
 def allowed_file(filename: str) -> bool:
@@ -29,80 +35,53 @@ def allowed_file(filename: str) -> bool:
 
 
 def build_video_prompt(user_request: str, has_image: bool) -> str:
-    """Transform a user request into an optimized cinematic video prompt via Claude."""
+    """Use Claude Sonnet to transform a user request into a cinematic video prompt."""
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
-    image_context = (
+    image_ctx = (
         "A reference image is provided — animate it naturally while respecting its content."
         if has_image
         else ""
     )
-
-    system = (
-        "You are an expert AI video director. Your job is to rewrite user requests "
-        "into precise, cinematic video generation prompts. Be specific about camera "
-        "movement, lighting, mood, motion, and style. Output ONLY the prompt text, "
-        "no explanations or extra formatting."
-    )
-
-    user_message = (
-        f"{image_context}\n\nUser request: {user_request}\n\n"
-        "Write a detailed, cinematic video generation prompt (2-4 sentences max)."
-    )
-
     response = client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=400,
-        system=system,
-        messages=[{"role": "user", "content": user_message}],
+        system=(
+            "You are an expert AI video director. Rewrite user requests into precise, "
+            "cinematic video generation prompts. Be specific about camera movement, "
+            "lighting, mood, motion, and visual style. "
+            "Output ONLY the prompt text — no explanations, no formatting."
+        ),
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    f"{image_ctx}\n\nUser request: {user_request}\n\n"
+                    "Write a detailed cinematic video prompt (2-4 sentences)."
+                ),
+            }
+        ],
     )
     return response.content[0].text.strip()
 
 
-def image_to_data_uri(file_bytes: bytes, mime_type: str) -> str:
-    encoded = base64.b64encode(file_bytes).decode("utf-8")
-    return f"data:{mime_type};base64,{encoded}"
-
-
-def submit_generation(prompt: str, image_data_uri: str | None) -> dict:
-    """Submit a video generation request to Higgsfield and return the job info."""
-    headers = {
-        "Authorization": f"Bearer {HIGGSFIELD_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    payload = {
-        "task": "image-to-video" if image_data_uri else "text-to-video",
-        "prompt": prompt,
-        "duration": 5,
-        "fps": 24,
-        "motion_intensity": "medium",
-        "enhance_prompt": False,  # We already enhanced with Claude
-    }
-
-    if image_data_uri:
-        payload["input_image"] = image_data_uri
-
-    response = requests.post(
-        f"{HIGGSFIELD_BASE_URL}/generations",
-        headers=headers,
-        json=payload,
-        timeout=30,
+def run_generation(job_id: str, prompt: str, image_path: str | None) -> None:
+    """Background thread: run Playwright scraper and update job status."""
+    scraper = HiggsFieldScraper(
+        email=HIGGSFIELD_EMAIL,
+        password=HIGGSFIELD_PASSWORD,
+        cookies_json=HIGGSFIELD_COOKIES,
     )
-    response.raise_for_status()
-    return response.json()
-
-
-def get_generation_status(generation_id: str) -> dict:
-    """Poll Higgsfield for the status of a generation job."""
-    headers = {"Authorization": f"Bearer {HIGGSFIELD_API_KEY}"}
-    response = requests.get(
-        f"{HIGGSFIELD_BASE_URL}/generations/{generation_id}",
-        headers=headers,
-        timeout=15,
-    )
-    response.raise_for_status()
-    return response.json()
+    try:
+        jobs[job_id]["status"] = "generating"
+        video_url = scraper.generate(prompt, image_path)
+        jobs[job_id].update({"status": "completed", "video_url": video_url})
+        logger.info("Job %s completed: %s", job_id, video_url)
+    except Exception as exc:
+        logger.error("Job %s failed: %s", job_id, exc)
+        jobs[job_id].update({"status": "failed", "error": str(exc)})
+    finally:
+        if image_path and os.path.exists(image_path):
+            os.unlink(image_path)
 
 
 @app.route("/")
@@ -116,51 +95,60 @@ def generate():
     if not user_request:
         return jsonify({"error": "A description is required."}), 400
 
-    image_data_uri = None
+    # Save uploaded image to a temp file
+    image_path = None
     image_file = request.files.get("image")
-    if image_file and image_file.filename:
-        if not allowed_file(image_file.filename):
-            return jsonify({"error": "Unsupported image format. Use PNG, JPG, WEBP or GIF."}), 400
-        file_bytes = image_file.read()
-        mime_type = image_file.content_type or "image/jpeg"
-        image_data_uri = image_to_data_uri(file_bytes, mime_type)
+    if image_file and image_file.filename and allowed_file(image_file.filename):
+        ext = image_file.filename.rsplit(".", 1)[1].lower()
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}")
+        image_file.save(tmp.name)
+        image_path = tmp.name
 
+    # Enhance prompt with Claude
     try:
-        enhanced_prompt = build_video_prompt(user_request, has_image=image_data_uri is not None)
+        enhanced_prompt = build_video_prompt(
+            user_request, has_image=image_path is not None
+        )
     except Exception as exc:
-        logger.error("Claude prompt enhancement failed: %s", exc)
+        if image_path:
+            os.unlink(image_path)
         return jsonify({"error": f"Prompt generation failed: {exc}"}), 502
 
-    try:
-        job = submit_generation(enhanced_prompt, image_data_uri)
-    except requests.HTTPError as exc:
-        logger.error("Higgsfield submission failed: %s", exc.response.text if exc.response else exc)
-        return jsonify({"error": f"Higgsfield API error: {exc}"}), 502
-    except Exception as exc:
-        logger.error("Unexpected error during submission: %s", exc)
-        return jsonify({"error": str(exc)}), 500
+    # Create job and spawn background thread
+    job_id = str(uuid.uuid4())
+    jobs[job_id] = {
+        "status": "queued",
+        "enhanced_prompt": enhanced_prompt,
+        "video_url": None,
+        "error": None,
+    }
+    threading.Thread(
+        target=run_generation,
+        args=(job_id, enhanced_prompt, image_path),
+        daemon=True,
+    ).start()
 
-    generation_id = job.get("id") or job.get("generation_id")
     return jsonify(
         {
-            "generation_id": generation_id,
+            "job_id": job_id,
             "enhanced_prompt": enhanced_prompt,
-            "status": job.get("status", "queued"),
+            "status": "queued",
         }
     )
 
 
-@app.route("/api/status/<generation_id>", methods=["GET"])
-def status(generation_id: str):
-    try:
-        data = get_generation_status(generation_id)
-        return jsonify(data)
-    except requests.HTTPError as exc:
-        return jsonify({"error": str(exc)}), 502
-    except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+@app.route("/api/status/<job_id>", methods=["GET"])
+def status(job_id: str):
+    job = jobs.get(job_id)
+    if not job:
+        return jsonify({"error": "Job not found."}), 404
+    return jsonify(job)
 
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5001))
-    app.run(debug=os.getenv("FLASK_DEBUG", "false").lower() == "true", port=port, host="0.0.0.0")
+    app.run(
+        debug=os.getenv("FLASK_DEBUG", "false").lower() == "true",
+        port=port,
+        host="0.0.0.0",
+    )
